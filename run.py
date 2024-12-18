@@ -64,13 +64,15 @@ class RunSimulation:
             param_adim=self.param_adim,
         )
 
-        X_pde = torch.empty(
-            self.hyper_param["nb_points_pde"] * self.nb_simu, requires_grad=True
-        )
+        X_pde = torch.empty((self.hyper_param["nb_points_pde"] * self.nb_simu, 4))
         for k in range(self.nb_simu):
             X_pde_without_param = torch.concat(
-                rectangle.generate_lhs(self.hyper_param["nb_points_pde"]),
-                self.ya0[k] * torch.ones(self.hyper_param["nb_points_pde"]),
+                (
+                    rectangle.generate_lhs(self.hyper_param["nb_points_pde"]),
+                    self.hyper_param["ya0"][k]
+                    * torch.ones(self.hyper_param["nb_points_pde"]).reshape(-1, 1),
+                ),
+                dim=1,
             )
             X_pde[
                 k
@@ -78,23 +80,27 @@ class RunSimulation:
                 * self.hyper_param["nb_points_pde"]
             ] = X_pde_without_param
         indices = torch.randperm(X_pde.size(0))
-        X_pde = X_pde[indices, :]
+        X_pde = X_pde[indices, :].requires_grad_(True)
 
         # Data test loading
-        X_test_pde = torch.empty(
-            self.hyper_param["n_pde_test"] * self.nb_simu, requires_grad=True
-        )
+        X_test_pde = torch.empty((self.hyper_param["n_pde_test"] * self.nb_simu, 4))
         for k in range(self.nb_simu):
-            X_test_pde_without_param = rectangle.generate_lhs(
-                self.hyper_param["n_pde_test"]
+            X_test_pde_without_param = torch.concat(
+                (
+                    rectangle.generate_lhs(self.hyper_param["n_pde_test"]),
+                    self.hyper_param["ya0"][k]
+                    * torch.ones(self.hyper_param["n_pde_test"]).reshape(-1, 1),
+                ),
+                dim=1,
             )
+
             X_test_pde[
                 k
                 * self.hyper_param["n_pde_test"] : (k + 1)
                 * self.hyper_param["n_pde_test"]
             ] = X_test_pde_without_param
         indices = torch.randperm(X_test_pde.size(0))
-        X_test_pde = X_test_pde[indices, :]
+        X_test_pde = X_test_pde[indices, :].requires_grad_(True)
 
         points_coloc_test = np.random.choice(
             len(X_full), self.hyper_param["n_data_test"], replace=False

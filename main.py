@@ -12,20 +12,20 @@ folder_result_name = "first_try"  # name of the result folder
 
 hyper_param_init = {
     "H": 230.67,  # la rigidité du ressort
-    "ya0": torch.tensor([
+    "ya0": [
         0.0025,
         0.0125,
         0.00375,
         0.00625,
         0.00875
-    ]),  # la position initiale du ressort
+    ],  # la position initiale du ressort
     "m": 1.57,  # la masse du ressort
     "file": [
-        'data_john_2_case_2.csv',
-        'data_john_4_case_2.csv',
-        'data_john_5_case_2.csv',
-        'data_john_7_case_2.csv',
-        'data_john_9_case_2.csv'
+        'data_john_2_case_2_test.csv',
+        'data_john_4_case_2_test.csv',
+        'data_john_5_case_2_test.csv',
+        'data_john_7_case_2_test.csv',
+       #'data_john_9_case_2_test.csv'
     ],
     "nb_epoch": 10000,  # epoch number
     "save_rate": 50,  # rate to save

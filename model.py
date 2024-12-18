@@ -135,4 +135,3 @@ class PINNs(nn.Module):
 if __name__ == "__main__":
     hyper_param = {"nb_layers": 0, "nb_neurons": 32}
     piche = PINNs(hyper_param)
-    print(piche)

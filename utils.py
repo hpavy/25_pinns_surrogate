@@ -1,10 +1,10 @@
 # Les fonctions utiles ici
 import pandas as pd
-import numpy as np
 from pathlib import Path
 import torch.nn as nn
 import torch.optim as optim
 from model import PINNs
+import numpy as np
 import torch
 
 
@@ -30,8 +30,9 @@ def charge_data(hyper_param, param_adim):
     nb_simu = len(hyper_param["file"])
     df_tot = pd.DataFrame()
     for k in range(nb_simu):
-        df = pd.read_csv(hyper_param["file"])
-        df_modified = df[
+        df = pd.read_csv("25_pinns_surrogate/" + hyper_param["file"][k])
+        # df = pd.read_csv(hyper_param["file"][k])
+        df_modified = df.loc[
             (df["Points:0"] >= hyper_param["x_min"])
             & (df["Points:0"] <= hyper_param["x_max"])
             & (df["Points:1"] >= hyper_param["y_min"])
@@ -40,22 +41,26 @@ def charge_data(hyper_param, param_adim):
             & (df["Time"] < hyper_param["t_max"])
             & (df["Points:2"] == 0.0)
             # pour ne pas avoir dans le cylindre
-            & (df["Points:0"] ** 2 + df["Points:1"] ** 2 > (0.025 / 2) ** 2)
-        ]
-        df_modified["ya0"] = hyper_param["ya0"][k]
+            & (df["Points:0"] ** 2 + df["Points:1"] ** 2 > (0.025 / 2) ** 2),
+            :,
+        ].copy()
+        df_modified.loc[:, "ya0"] = hyper_param["ya0"][k]
         df_tot = pd.concat([df_tot, df_modified])
+        print(f"fichier n°{k} chargé")
 
     # Adimensionnement
     x_full, y_full, t_full, ya0_full = (
-        np.array(df_tot["Points:0"]) / param_adim["L"],
-        np.array(df_tot["Points:1"]) / param_adim["L"],
-        np.array(df_tot["Time"]) / (param_adim["L"] / param_adim["V"]),
-        np.array(df_tot["ya0"]) / param_adim["L"],
+        torch.tensor(df_tot["Points:0"], dtype=torch.float32) / param_adim["L"],
+        torch.tensor(df_tot["Points:1"], dtype=torch.float32) / param_adim["L"],
+        torch.tensor(df_tot["Time"], dtype=torch.float32)
+        / (param_adim["L"] / param_adim["V"]),
+        torch.tensor(df_tot["ya0"], dtype=torch.float32) / param_adim["L"],
     )
     u_full, v_full, p_full = (
-        np.array(df_tot["Velocity:0"]) / param_adim["V"],
-        np.array(df_tot["Velocity:1"]) / param_adim["V"],
-        np.array(df_tot["Pressure"]) / ((param_adim["V"] ** 2) * param_adim["rho"]),
+        torch.tensor(df_tot["Velocity:0"], dtype=torch.float32) / param_adim["V"],
+        torch.tensor(df_tot["Velocity:1"], dtype=torch.float32) / param_adim["V"],
+        torch.tensor(df_tot["Pressure"], dtype=torch.float32)
+        / ((param_adim["V"] ** 2) * param_adim["rho"]),
     )
 
     # Normalisation Z
@@ -67,44 +72,42 @@ def charge_data(hyper_param, param_adim):
     u_norm_full = (u_full - u_full.mean()) / u_full.std()
     v_norm_full = (v_full - v_full.mean()) / v_full.std()
 
-    X_full = np.array(
-        [x_norm_full, y_norm_full, t_norm_full, ya0_norm_full], dtype=np.float32
-    ).T
-    U_full = np.array([u_norm_full, v_norm_full, p_norm_full], dtype=np.float32).T
+    X_full = torch.stack((x_norm_full, y_norm_full, t_norm_full, ya0_norm_full), dim=1)
+    U_full = torch.stack((u_norm_full, v_norm_full, p_norm_full), dim=1)
 
     x_int = (x_norm_full.max() - x_norm_full.min()) / hyper_param["nb_points_axes"]
     y_int = (y_norm_full.max() - y_norm_full.min()) / hyper_param["nb_points_axes"]
-    X_train = np.zeros((0, 4))
-    U_train = np.zeros((0, 3))
-    for time in np.unique(t_norm_full):
+    X_train = torch.zeros((0, 4))
+    U_train = torch.zeros((0, 3))
+    print("Starting X_train")
+    for time in torch.unique(t_norm_full):
         # les points autour du cylindre dans un rayon de 0.025
         masque = ((x_full**2 + y_full**2) < ((0.025 / param_adim["L"]) ** 2)) & (
             t_norm_full == time
         )
-        indice = np.random.choice(
-            np.arange(len(x_norm_full[masque])),
-            size=hyper_param["nb_points_close_cylinder"],
-            replace=False,
-        )
-        new_x = np.concatenate(
+        indices = torch.randperm(len(x_norm_full[masque]))[
+            :, hyper_param["nb_points_close_cylinder"]
+        ]
+
+        new_x = torch.stack(
             (
-                x_norm_full[masque][indice].reshape(-1, 1),
-                y_norm_full[masque][indice].reshape(-1, 1),
-                t_norm_full[masque][indice].reshape(-1, 1),
-                ya0_norm_full[masque][indice].reshape(-1, 1),
+                x_norm_full[masque][indices],
+                y_norm_full[masque][indices],
+                t_norm_full[masque][indices],
+                ya0_norm_full[masque][indices],
             ),
-            axis=1,
+            dim=1,
         )
-        new_y = np.concatenate(
+        new_y = torch.stack(
             (
-                u_norm_full[masque][indice].reshape(-1, 1),
-                v_norm_full[masque][indice].reshape(-1, 1),
-                p_norm_full[masque][indice].reshape(-1, 1),
+                u_norm_full[masque][indices],
+                v_norm_full[masque][indices],
+                p_norm_full[masque][indices],
             ),
-            axis=1,
+            dim=1,
         )
-        X_train = np.concatenate((X_train, new_x))
-        U_train = np.concatenate((U_train, new_y))
+        X_train = torch.cat((X_train, new_x))
+        U_train = torch.cat((U_train, new_y))
 
         # Les points avec 'latin hypercube sampling'
         for x_num in range(hyper_param["nb_points_axes"]):
@@ -117,10 +120,8 @@ def charge_data(hyper_param, param_adim):
                     & (t_norm_full == time)
                 )
                 if len(x_norm_full[masque]) > 0:
-                    indice = np.random.choice(
-                        np.arange(len(x_norm_full[masque])), size=1, replace=False
-                    )
-                    new_x = np.array(
+                    indice = torch.randint(x_norm_full[masque].size[0], (1,)).item()
+                    new_x = torch.tensor(
                         [
                             x_norm_full[masque][indice],
                             y_norm_full[masque][indice],
@@ -128,25 +129,26 @@ def charge_data(hyper_param, param_adim):
                             ya0_norm_full[masque][indice],
                         ]
                     ).reshape(-1, 4)
-                    new_y = np.array(
+                    new_y = torch.tensor(
                         [
                             u_norm_full[masque][indice],
                             v_norm_full[masque][indice],
                             p_norm_full[masque][indice],
                         ]
                     ).reshape(-1, 3)
-                    X_train = np.concatenate((X_train, new_x))
-                    U_train = np.concatenate((U_train, new_y))
-    indices = np.random.permutation(len(X_train))
+                    X_train = torch.cat((X_train, new_x))
+                    U_train = torch.cat((U_train, new_y))
+    indices = torch.randperm(X_train.shape(0))
     X_train = X_train[indices]
     U_train = U_train[indices]
+    print("X_train OK")
 
     # les points du bord
     nb_border = hyper_param["nb_points_border"]
     teta_int = np.linspace(0, 2 * np.pi, nb_border)
     X_border = np.zeros((0, 4))
     for time in np.unique(t_norm_full):
-        for ya0_ in hyper_param["ya0"]:
+        for ya0_ in hyper_param["ya0"][k]:
             for teta in teta_int:
                 x_ = (
                     (((0.025 / 2) * np.cos(teta)) / param_adim["L"]) - x_full.mean()
@@ -155,14 +157,15 @@ def charge_data(hyper_param, param_adim):
                     (((0.025 / 2) * np.sin(teta)) / param_adim["L"]) - y_full.mean()
                 ) / y_full.std()
                 new_x = np.array([x_, y_, time, ya0_]).reshape(-1, 4)
-                X_border = np.concatenate((X_border, new_x))
+                X_border = torch.cat((X_border, new_x))
     indices = np.random.permutation(len(X_border))
     X_border = X_border[indices]
+    print("X_border OK")
 
     teta_int_test = np.linspace(0, 2 * np.pi, 15)
     X_border_test = np.zeros((0, 4))
     for time in np.unique(t_norm_full):
-        for ya0_ in hyper_param["ya0"]:
+        for ya0_ in hyper_param["ya0"][k]:
             for teta in teta_int_test:
                 x_ = (
                     (((0.025 / 2) * np.cos(teta)) / param_adim["L"]) - x_full.mean()
