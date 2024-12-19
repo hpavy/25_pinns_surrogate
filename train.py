@@ -83,6 +83,8 @@ def train(
     X_test_data = X_test_data.to(device).detach()
     U_test_data = U_test_data.to(device).detach()
 
+    nb_batch_max = X_train.size(0) // batch_size - 1
+
     for epoch in range(len(train_loss["total"]), nb_it_tot):
         time_start_batch = time.time()
         total_batch = torch.tensor([0.0], device=device)
@@ -90,7 +92,9 @@ def train(
         pde_batch = torch.tensor([0.0], device=device)
         border_batch = torch.tensor([0.0], device=device)
         model.train()  # on dit qu'on va entrainer (on a le dropout)
-        for batch in torch.tensor([k for k in range(nb_batch)], device=device):
+        for nb_batch, batch in enumerate(
+            torch.tensor([k for k in range(nb_batch)], device=device)
+        ):
             if device == "cuda":
                 with torch.cuda.stream(stream_pde):
                     # loss du pde
@@ -180,6 +184,7 @@ def train(
                     + torch.mean(pred_pde3**2)
                 )
                 # loss des points de data
+
                 pred_data = model(X_train)
                 loss_data = loss(U_train, pred_data)
 
