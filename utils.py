@@ -5,6 +5,7 @@ import torch.nn as nn
 import torch.optim as optim
 from model import PINNs
 import torch
+import time
 
 
 def write_csv(data, path, file_name):
@@ -26,6 +27,8 @@ def charge_data(hyper_param, param_adim):
     """
     # La data
     # On adimensionne la data
+
+    time_start_charge = time.time()
     nb_simu = len(hyper_param["file"])
     df_tot = pd.DataFrame()
     for k in range(nb_simu):
@@ -83,64 +86,70 @@ def charge_data(hyper_param, param_adim):
     X_train = torch.zeros((0, 4))
     U_train = torch.zeros((0, 3))
     print("Starting X_train")
-    for time in torch.unique(t_norm_full):
-        # les points autour du cylindre dans un rayon de 0.025
-        masque = ((x_full**2 + y_full**2) < ((0.025 / param_adim["L"]) ** 2)) & (
-            t_norm_full == time
-        )
-        indices = torch.randperm(len(x_norm_full[masque]))[
-            : hyper_param["nb_points_close_cylinder"]
-        ]
+    for nb, ya0_ in enumerate(torch.unique(ya0_norm_full)):
+        print(f"Simu n°{nb}/{torch.unique(ya0_norm_full).size(0)}")
+        print(f"Time:{(time.time()-time_start_charge):.3f}")
+        for time_ in torch.unique(t_norm_full):
+            # les points autour du cylindre dans un rayon de 0.025
+            masque = (
+                ((x_full**2 + y_full**2) < ((0.025 / param_adim["L"]) ** 2))
+                & (t_norm_full == time_)
+                & (ya0_norm_full == ya0_)
+            )
+            indices = torch.randperm(len(x_norm_full[masque]))[
+                : hyper_param["nb_points_close_cylinder"]
+            ]
 
-        new_x = torch.stack(
-            (
-                x_norm_full[masque][indices],
-                y_norm_full[masque][indices],
-                t_norm_full[masque][indices],
-                ya0_norm_full[masque][indices],
-            ),
-            dim=1,
-        )
-        new_y = torch.stack(
-            (
-                u_norm_full[masque][indices],
-                v_norm_full[masque][indices],
-                p_norm_full[masque][indices],
-            ),
-            dim=1,
-        )
-        X_train = torch.cat((X_train, new_x))
-        U_train = torch.cat((U_train, new_y))
+            new_x = torch.stack(
+                (
+                    x_norm_full[masque][indices],
+                    y_norm_full[masque][indices],
+                    t_norm_full[masque][indices],
+                    ya0_norm_full[masque][indices],
+                ),
+                dim=1,
+            )
+            new_y = torch.stack(
+                (
+                    u_norm_full[masque][indices],
+                    v_norm_full[masque][indices],
+                    p_norm_full[masque][indices],
+                ),
+                dim=1,
+            )
+            X_train = torch.cat((X_train, new_x))
+            U_train = torch.cat((U_train, new_y))
 
-        # Les points avec 'latin hypercube sampling'
-        for x_num in range(hyper_param["nb_points_axes"]):
-            for y_num in range(hyper_param["nb_points_axes"]):
-                masque = (
-                    (x_norm_full > x_norm_full.min() + x_int * x_num)
-                    & (x_norm_full < x_norm_full.min() + (x_num + 1) * x_int)
-                    & (y_norm_full < y_norm_full.min() + (y_num + 1) * y_int)
-                    & (y_norm_full > y_norm_full.min() + (y_num) * y_int)
-                    & (t_norm_full == time)
-                )
-                if len(x_norm_full[masque]) > 0:
-                    indice = torch.randint(x_norm_full[masque].size(0), (1,)).item()
-                    new_x = torch.tensor(
-                        [
-                            x_norm_full[masque][indice],
-                            y_norm_full[masque][indice],
-                            t_norm_full[masque][indice],
-                            ya0_norm_full[masque][indice],
-                        ]
-                    ).reshape(-1, 4)
-                    new_y = torch.tensor(
-                        [
-                            u_norm_full[masque][indice],
-                            v_norm_full[masque][indice],
-                            p_norm_full[masque][indice],
-                        ]
-                    ).reshape(-1, 3)
-                    X_train = torch.cat((X_train, new_x))
-                    U_train = torch.cat((U_train, new_y))
+            # Les points avec 'latin hypercube sampling'
+            for x_num in range(hyper_param["nb_points_axes"]):
+                for y_num in range(hyper_param["nb_points_axes"]):
+                    masque = (
+                        (x_norm_full > x_norm_full.min() + x_int * x_num)
+                        & (x_norm_full < x_norm_full.min() + (x_num + 1) * x_int)
+                        & (y_norm_full < y_norm_full.min() + (y_num + 1) * y_int)
+                        & (y_norm_full > y_norm_full.min() + (y_num) * y_int)
+                        & (t_norm_full == time_)
+                        & (ya0_norm_full == ya0_)
+                    )
+                    if len(x_norm_full[masque]) > 0:
+                        indice = torch.randint(x_norm_full[masque].size(0), (1,)).item()
+                        new_x = torch.tensor(
+                            [
+                                x_norm_full[masque][indice],
+                                y_norm_full[masque][indice],
+                                t_norm_full[masque][indice],
+                                ya0_norm_full[masque][indice],
+                            ]
+                        ).reshape(-1, 4)
+                        new_y = torch.tensor(
+                            [
+                                u_norm_full[masque][indice],
+                                v_norm_full[masque][indice],
+                                p_norm_full[masque][indice],
+                            ]
+                        ).reshape(-1, 3)
+                        X_train = torch.cat((X_train, new_x))
+                        U_train = torch.cat((U_train, new_y))
     indices = torch.randperm(X_train.size(0))
     X_train = X_train[indices]
     U_train = U_train[indices]
@@ -150,18 +159,20 @@ def charge_data(hyper_param, param_adim):
     nb_border = hyper_param["nb_points_border"]
     teta_int = torch.linspace(0, 2 * torch.pi, nb_border)
     X_border = torch.zeros((0, 4))
-    for time in torch.unique(t_norm_full):
-        for ya0_ in hyper_param["ya0"]:
-            for teta in teta_int:
-                x_ = (
-                    (((0.025 / 2) * torch.cos(teta)) / param_adim["L"]) - x_full.mean()
-                ) / x_full.std()
-                y_ = (
-                    (((0.025 / 2) * torch.sin(teta)) / param_adim["L"]) - y_full.mean()
-                ) / y_full.std()
-                new_x = torch.tensor([x_, y_, time, ya0_], dtype=torch.float32).reshape(
-                    -1, 4
-                )
+    for nb, time_ in enumerate(torch.unique(t_norm_full)):
+        print(f"Simu n°{nb}/{torch.unique(t_norm_full).size(0)}")
+        print(f"Time:{(time.time()-time_start_charge):.3f}")
+        for teta in teta_int:
+            x_ = (
+                (((0.025 / 2) * torch.cos(teta)) / param_adim["L"]) - x_full.mean()
+            ) / x_full.std()
+            y_ = (
+                (((0.025 / 2) * torch.sin(teta)) / param_adim["L"]) - y_full.mean()
+            ) / y_full.std()
+            for ya0_ in torch.unique(ya0_norm_full):
+                new_x = torch.tensor(
+                    [x_, y_, time_, ya0_], dtype=torch.float32
+                ).reshape(-1, 4)
                 X_border = torch.cat((X_border, new_x))
     indices = torch.randperm(X_border.size(0))
     X_border = X_border[indices]
@@ -169,18 +180,18 @@ def charge_data(hyper_param, param_adim):
 
     teta_int_test = torch.linspace(0, 2 * torch.pi, 15)
     X_border_test = torch.zeros((0, 4))
-    for time in torch.unique(t_norm_full):
-        for ya0_ in hyper_param["ya0"]:
-            for teta in teta_int_test:
-                x_ = (
-                    (((0.025 / 2) * torch.cos(teta)) / param_adim["L"]) - x_full.mean()
-                ) / x_full.std()
-                y_ = (
-                    (((0.025 / 2) * torch.sin(teta)) / param_adim["L"]) - y_full.mean()
-                ) / y_full.std()
-                new_x = torch.tensor([x_, y_, time, ya0_], dtype=torch.float32).reshape(
-                    -1, 4
-                )
+    for time_ in torch.unique(t_norm_full):
+        for teta in teta_int_test:
+            x_ = (
+                (((0.025 / 2) * torch.cos(teta)) / param_adim["L"]) - x_full.mean()
+            ) / x_full.std()
+            y_ = (
+                (((0.025 / 2) * torch.sin(teta)) / param_adim["L"]) - y_full.mean()
+            ) / y_full.std()
+            for ya0_ in hyper_param["ya0"]:
+                new_x = torch.tensor(
+                    [x_, y_, time_, ya0_], dtype=torch.float32
+                ).reshape(-1, 4)
                 X_border_test = torch.cat((X_border_test, new_x))
 
     # les valeurs pour renormaliser ou dénormaliser

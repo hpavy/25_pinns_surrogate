@@ -35,8 +35,8 @@ hyper_param_init = {
     "weight_data": 1.0,
     "weight_pde": 1.0,
     "weight_border": 1.0,
-    "batch_size": 100,  # for the pde
-    "nb_points_pde": 10000,  # Total number of pde points
+    "batch_size": 10000,  # for the pde
+    "nb_points_pde": 1000000,  # Total number of pde points
     "Re": 100,
     "lr_init": 0.001,
     "gamma_scheduler": 0.999,  # pour la lr
