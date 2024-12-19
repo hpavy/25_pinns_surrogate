@@ -151,4 +151,5 @@ class RunSimulation:
                 mean_std=mean_std,
                 w_0=(self.hyper_param["H"] / self.hyper_param["m"]) ** 0.5,
                 param_adim=self.param_adim,
+                nb_simu=len(self.hyper_param["file"])
             )
