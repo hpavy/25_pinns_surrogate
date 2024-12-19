@@ -1,0 +1,182 @@
+Nouveau modèle
+
+--------------------------
+Starting at epoch: 0
+--------------------------
+Nouveau modèle
+
+--------------------------
+Starting at epoch: 0
+--------------------------
+Nouveau modèle
+
+--------------------------
+Starting at epoch: 0
+--------------------------
+Nouveau modèle
+
+--------------------------
+Starting at epoch: 0
+--------------------------
+Nouveau modèle
+
+--------------------------
+Starting at epoch: 0
+--------------------------
+Nouveau modèle
+
+--------------------------
+Starting at epoch: 0
+--------------------------
+Nouveau modèle
+
+--------------------------
+Starting at epoch: 0
+--------------------------
+Nouveau modèle
+
+--------------------------
+Starting at epoch: 0
+--------------------------
+Nouveau modèle
+
+--------------------------
+Starting at epoch: 0
+--------------------------
+Nouveau modèle
+
+--------------------------
+Starting at epoch: 0
+--------------------------
+Nouveau modèle
+
+--------------------------
+Starting at epoch: 0
+--------------------------
+Nouveau modèle
+
+--------------------------
+Starting at epoch: 0
+--------------------------
+Nouveau modèle
+
+--------------------------
+Starting at epoch: 0
+--------------------------
+Nouveau modèle
+
+--------------------------
+Starting at epoch: 0
+--------------------------
+Nouveau modèle
+
+--------------------------
+Starting at epoch: 0
+--------------------------
+Nouveau modèle
+
+--------------------------
+Starting at epoch: 0
+--------------------------
+Nouveau modèle
+
+--------------------------
+Starting at epoch: 0
+--------------------------
+Nouveau modèle
+
+--------------------------
+Starting at epoch: 0
+--------------------------
+Nouveau modèle
+
+--------------------------
+Starting at epoch: 0
+--------------------------
+Nouveau modèle
+
+--------------------------
+Starting at epoch: 0
+--------------------------
+Nouveau modèle
+
+--------------------------
+Starting at epoch: 0
+--------------------------
+---------------------
+Epoch 1/10000 :
+Train : loss: 1.526e+00, data: 1.101e+00, pde: 4.062e-02, border: 3.845e-01
+Test  : loss: 1.127e+00, data: 9.870e-01, pde: 4.070e-02, border: 9.878e-02
+Weights  : ------------, data: 3.5e-01,   pde: 3.2e-01,   border: 3.3e-01
+time: 16s
+time: 2s
+---------------------
+Epoch 2/10000 :
+Train : loss: 3.520e-01, data: 8.896e-01, pde: 4.109e-02, border: 7.800e-02
+Test  : loss: 2.810e-01, data: 7.200e-01, pde: 3.634e-02, border: 4.814e-02
+Weights  : ------------, data: 4.0e-01,   pde: 2.9e-01,   border: 3.1e-01
+time: 18s
+time: 2s
+---------------------
+Epoch 3/10000 :
+Train : loss: 2.763e-01, data: 6.327e-01, pde: 3.669e-02, border: 3.933e-02
+Test  : loss: 2.148e-01, data: 4.865e-01, pde: 3.289e-02, border: 3.348e-02
+Weights  : ------------, data: 4.3e-01,   pde: 2.8e-01,   border: 2.9e-01
+time: 19s
+time: 2s
+---------------------
+Epoch 4/10000 :
+Train : loss: 2.247e-01, data: 4.720e-01, pde: 3.079e-02, border: 4.051e-02
+Test  : loss: 1.847e-01, data: 3.779e-01, pde: 2.656e-02, border: 4.682e-02
+Weights  : ------------, data: 4.6e-01,   pde: 2.7e-01,   border: 2.8e-01
+time: 21s
+time: 2s
+---------------------
+Epoch 5/10000 :
+Train : loss: 1.924e-01, data: 3.797e-01, pde: 2.260e-02, border: 4.793e-02
+Test  : loss: 1.604e-01, data: 3.128e-01, pde: 1.959e-02, border: 4.533e-02
+Weights  : ------------, data: 4.7e-01,   pde: 2.6e-01,   border: 2.7e-01
+time: 23s
+time: 2s
+---------------------
+Epoch 6/10000 :
+Train : loss: 1.641e-01, data: 3.129e-01, pde: 2.125e-02, border: 3.975e-02
+Test  : loss: 1.416e-01, data: 2.695e-01, pde: 2.187e-02, border: 3.223e-02
+Weights  : ------------, data: 4.9e-01,   pde: 2.5e-01,   border: 2.7e-01
+time: 24s
+time: 2s
+---------------------
+Epoch 7/10000 :
+Train : loss: 1.416e-01, data: 2.654e-01, pde: 2.306e-02, border: 2.615e-02
+Test  : loss: 1.290e-01, data: 2.433e-01, pde: 2.219e-02, border: 2.007e-02
+Weights  : ------------, data: 5.0e-01,   pde: 2.4e-01,   border: 2.6e-01
+time: 26s
+time: 2s
+---------------------
+Epoch 8/10000 :
+Train : loss: 1.272e-01, data: 2.365e-01, pde: 2.189e-02, border: 1.716e-02
+Test  : loss: 1.214e-01, data: 2.271e-01, pde: 2.069e-02, border: 1.375e-02
+Weights  : ------------, data: 5.1e-01,   pde: 2.4e-01,   border: 2.5e-01
+time: 28s
+time: 2s
+---------------------
+Epoch 9/10000 :
+Train : loss: 1.174e-01, data: 2.163e-01, pde: 2.063e-02, border: 1.198e-02
+Test  : loss: 1.157e-01, data: 2.142e-01, pde: 2.013e-02, border: 9.759e-03
+Weights  : ------------, data: 5.1e-01,   pde: 2.4e-01,   border: 2.5e-01
+time: 29s
+time: 2s
+---------------------
+Epoch 10/10000 :
+Train : loss: 1.100e-01, data: 2.004e-01, pde: 1.997e-02, border: 8.504e-03
+Test  : loss: 1.108e-01, data: 2.028e-01, pde: 1.940e-02, border: 7.095e-03
+Weights  : ------------, data: 5.2e-01,   pde: 2.3e-01,   border: 2.4e-01
+time: 31s
+time: 2s
+---------------------
+Epoch 11/10000 :
+Train : loss: 1.040e-01, data: 1.878e-01, pde: 1.860e-02, border: 5.793e-03
+Test  : loss: 1.062e-01, data: 1.930e-01, pde: 1.775e-02, border: 4.768e-03
+Weights  : ------------, data: 5.3e-01,   pde: 2.3e-01,   border: 2.4e-01
+time: 33s
+time: 2s

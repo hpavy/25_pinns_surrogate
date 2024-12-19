@@ -15,17 +15,17 @@ hyper_param_init = {
     "ya0": [
         0.0025,
         0.0125,
-        0.00375,
-        0.00625,
-        0.00875
+        # 0.00375,
+        # 0.00625,
+        # 0.00875,
     ],  # la position initiale du ressort
     "m": 1.57,  # la masse du ressort
     "file": [
-        'data_john_2_case_2_test.csv',
-        'data_john_4_case_2_test.csv',
-        'data_john_5_case_2_test.csv',
-        'data_john_7_case_2_test.csv',
-       #'data_john_9_case_2_test.csv'
+        "data_john_9_case_2_test.csv",
+        "data_john_2024_test.csv",
+        #'data_john_5_case_2_test.csv',
+        #'data_john_7_case_2_test.csv',
+        #'data_john_9_case_2_test.csv'
     ],
     "nb_epoch": 10000,  # epoch number
     "save_rate": 50,  # rate to save
@@ -34,16 +34,16 @@ hyper_param_init = {
     "weight_data": 1.0,
     "weight_pde": 1.0,
     "weight_border": 1.0,
-    "batch_size": 10000,  # for the pde
-    "nb_points_pde": 1000000,  # Total number of pde points
+    "batch_size": 100,  # for the pde
+    "nb_points_pde": 10000,  # Total number of pde points
     "Re": 100,
     "lr_init": 0.001,
     "gamma_scheduler": 0.999,  # pour la lr
-    "nb_layers": 15,
-    "nb_neurons": 64,
+    "nb_layers": 2,
+    "nb_neurons": 32,
     "n_pde_test": 5000,
     "n_data_test": 5000,
-    "nb_points_axes": 12,  # le nombre de points pris par axe par pas de temps
+    "nb_points_axes": 8,  # le nombre de points pris par axe par pas de temps
     "x_min": -0.1,
     "x_max": 0.1,
     "y_min": -0.06,

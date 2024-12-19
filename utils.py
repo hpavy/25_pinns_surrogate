@@ -4,7 +4,6 @@ from pathlib import Path
 import torch.nn as nn
 import torch.optim as optim
 from model import PINNs
-import numpy as np
 import torch
 
 
@@ -30,8 +29,8 @@ def charge_data(hyper_param, param_adim):
     nb_simu = len(hyper_param["file"])
     df_tot = pd.DataFrame()
     for k in range(nb_simu):
-        df = pd.read_csv("25_pinns_surrogate/" + hyper_param["file"][k])
-        # df = pd.read_csv(hyper_param["file"][k])
+        # df = pd.read_csv("25_pinns_surrogate/" + hyper_param["file"][k])
+        df = pd.read_csv("data/" + hyper_param["file"][k])
         df_modified = df.loc[
             (df["Points:0"] >= hyper_param["x_min"])
             & (df["Points:0"] <= hyper_param["x_max"])
@@ -50,16 +49,20 @@ def charge_data(hyper_param, param_adim):
 
     # Adimensionnement
     x_full, y_full, t_full, ya0_full = (
-        torch.tensor(df_tot["Points:0"], dtype=torch.float32) / param_adim["L"],
-        torch.tensor(df_tot["Points:1"], dtype=torch.float32) / param_adim["L"],
-        torch.tensor(df_tot["Time"], dtype=torch.float32)
+        torch.tensor(df_tot["Points:0"].to_numpy(), dtype=torch.float32)
+        / param_adim["L"],
+        torch.tensor(df_tot["Points:1"].to_numpy(), dtype=torch.float32)
+        / param_adim["L"],
+        torch.tensor(df_tot["Time"].to_numpy(), dtype=torch.float32)
         / (param_adim["L"] / param_adim["V"]),
-        torch.tensor(df_tot["ya0"], dtype=torch.float32) / param_adim["L"],
+        torch.tensor(df_tot["ya0"].to_numpy(), dtype=torch.float32) / param_adim["L"],
     )
     u_full, v_full, p_full = (
-        torch.tensor(df_tot["Velocity:0"], dtype=torch.float32) / param_adim["V"],
-        torch.tensor(df_tot["Velocity:1"], dtype=torch.float32) / param_adim["V"],
-        torch.tensor(df_tot["Pressure"], dtype=torch.float32)
+        torch.tensor(df_tot["Velocity:0"].to_numpy(), dtype=torch.float32)
+        / param_adim["V"],
+        torch.tensor(df_tot["Velocity:1"].to_numpy(), dtype=torch.float32)
+        / param_adim["V"],
+        torch.tensor(df_tot["Pressure"].to_numpy(), dtype=torch.float32)
         / ((param_adim["V"] ** 2) * param_adim["rho"]),
     )
 
@@ -86,7 +89,7 @@ def charge_data(hyper_param, param_adim):
             t_norm_full == time
         )
         indices = torch.randperm(len(x_norm_full[masque]))[
-            :, hyper_param["nb_points_close_cylinder"]
+            : hyper_param["nb_points_close_cylinder"]
         ]
 
         new_x = torch.stack(
@@ -120,7 +123,7 @@ def charge_data(hyper_param, param_adim):
                     & (t_norm_full == time)
                 )
                 if len(x_norm_full[masque]) > 0:
-                    indice = torch.randint(x_norm_full[masque].size[0], (1,)).item()
+                    indice = torch.randint(x_norm_full[masque].size(0), (1,)).item()
                     new_x = torch.tensor(
                         [
                             x_norm_full[masque][indice],
@@ -138,43 +141,47 @@ def charge_data(hyper_param, param_adim):
                     ).reshape(-1, 3)
                     X_train = torch.cat((X_train, new_x))
                     U_train = torch.cat((U_train, new_y))
-    indices = torch.randperm(X_train.shape(0))
+    indices = torch.randperm(X_train.size(0))
     X_train = X_train[indices]
     U_train = U_train[indices]
     print("X_train OK")
 
     # les points du bord
     nb_border = hyper_param["nb_points_border"]
-    teta_int = np.linspace(0, 2 * np.pi, nb_border)
-    X_border = np.zeros((0, 4))
-    for time in np.unique(t_norm_full):
-        for ya0_ in hyper_param["ya0"][k]:
+    teta_int = torch.linspace(0, 2 * torch.pi, nb_border)
+    X_border = torch.zeros((0, 4))
+    for time in torch.unique(t_norm_full):
+        for ya0_ in hyper_param["ya0"]:
             for teta in teta_int:
                 x_ = (
-                    (((0.025 / 2) * np.cos(teta)) / param_adim["L"]) - x_full.mean()
+                    (((0.025 / 2) * torch.cos(teta)) / param_adim["L"]) - x_full.mean()
                 ) / x_full.std()
                 y_ = (
-                    (((0.025 / 2) * np.sin(teta)) / param_adim["L"]) - y_full.mean()
+                    (((0.025 / 2) * torch.sin(teta)) / param_adim["L"]) - y_full.mean()
                 ) / y_full.std()
-                new_x = np.array([x_, y_, time, ya0_]).reshape(-1, 4)
+                new_x = torch.tensor([x_, y_, time, ya0_], dtype=torch.float32).reshape(
+                    -1, 4
+                )
                 X_border = torch.cat((X_border, new_x))
-    indices = np.random.permutation(len(X_border))
+    indices = torch.randperm(X_border.size(0))
     X_border = X_border[indices]
     print("X_border OK")
 
-    teta_int_test = np.linspace(0, 2 * np.pi, 15)
-    X_border_test = np.zeros((0, 4))
-    for time in np.unique(t_norm_full):
-        for ya0_ in hyper_param["ya0"][k]:
+    teta_int_test = torch.linspace(0, 2 * torch.pi, 15)
+    X_border_test = torch.zeros((0, 4))
+    for time in torch.unique(t_norm_full):
+        for ya0_ in hyper_param["ya0"]:
             for teta in teta_int_test:
                 x_ = (
-                    (((0.025 / 2) * np.cos(teta)) / param_adim["L"]) - x_full.mean()
+                    (((0.025 / 2) * torch.cos(teta)) / param_adim["L"]) - x_full.mean()
                 ) / x_full.std()
                 y_ = (
-                    (((0.025 / 2) * np.sin(teta)) / param_adim["L"]) - y_full.mean()
+                    (((0.025 / 2) * torch.sin(teta)) / param_adim["L"]) - y_full.mean()
                 ) / y_full.std()
-                new_x = np.array([x_, y_, time, ya0_]).reshape(-1, 4)
-                X_border_test = np.concatenate((X_border_test, new_x))
+                new_x = torch.tensor([x_, y_, time, ya0_], dtype=torch.float32).reshape(
+                    -1, 4
+                )
+                X_border_test = torch.cat((X_border_test, new_x))
 
     # les valeurs pour renormaliser ou dénormaliser
     mean_std = {

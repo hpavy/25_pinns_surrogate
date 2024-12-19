@@ -34,20 +34,17 @@ class RunSimulation:
 
         # Data loading
         (
-            X_train_np,
-            U_train_np,
+            X_train,
+            U_train,
             X_full,
             U_full,
-            X_border_np,
-            X_border_test_np,
+            X_border,
+            X_border_test,
             mean_std,
         ) = charge_data(self.hyper_param, self.param_adim)
-        X_train = torch.from_numpy(X_train_np).requires_grad_().to(torch.float32)
-        U_train = torch.from_numpy(U_train_np).requires_grad_().to(torch.float32)
-        X_border = torch.from_numpy(X_border_np).requires_grad_().to(torch.float32)
-        X_border_test = (
-            torch.from_numpy(X_border_test_np).requires_grad_().to(torch.float32)
-        )
+        X_train.requires_grad_()
+        U_train.requires_grad_()
+        X_border.requires_grad_()
 
         # le domaine de résolution
         rectangle = RectangleWithoutCylinder(
@@ -80,7 +77,7 @@ class RunSimulation:
                 * self.hyper_param["nb_points_pde"]
             ] = X_pde_without_param
         indices = torch.randperm(X_pde.size(0))
-        X_pde = X_pde[indices, :].requires_grad_(True)
+        X_pde = X_pde[indices, :].detach()
 
         # Data test loading
         X_test_pde = torch.empty((self.hyper_param["n_pde_test"] * self.nb_simu, 4))
@@ -105,8 +102,8 @@ class RunSimulation:
         points_coloc_test = np.random.choice(
             len(X_full), self.hyper_param["n_data_test"], replace=False
         )
-        X_test_data = torch.from_numpy(X_full[points_coloc_test])
-        U_test_data = torch.from_numpy(U_full[points_coloc_test])
+        X_test_data = X_full[points_coloc_test]
+        U_test_data = U_full[points_coloc_test]
 
         # Initialiser le modèle
 
