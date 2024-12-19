@@ -6,8 +6,8 @@
     ],
     "m": 1.57,
     "file": [
-        "data_john_3_case_2.csv",
-        "data_john_5_case_2.csv"
+        "data_john_9_case_2_test.csv",
+        "data_john_2024_test.csv"
     ],
     "nb_epoch": 1000,
     "save_rate": 20,
@@ -21,8 +21,8 @@
     "Re": 100,
     "lr_init": 0.001,
     "gamma_scheduler": 0.999,
-    "nb_layers": 10,
-    "nb_neurons": 64,
+    "nb_layers": 2,
+    "nb_neurons": 32,
     "n_pde_test": 5000,
     "n_data_test": 5000,
     "nb_points_axes": 12,
