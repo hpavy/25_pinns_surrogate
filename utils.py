@@ -102,6 +102,8 @@ def charge_data(hyper_param, param_adim):
         "ya0_std": torch.cat([ya0 for ya0 in ya0_full], dim=0).std(),
     }
 
+
+
     X_full = torch.zeros((0, 4))
     U_full = torch.zeros((0, 3))
     for k in range(nb_simu):
@@ -134,6 +136,7 @@ def charge_data(hyper_param, param_adim):
             )
         )
 
+
     X_train = torch.zeros((0, 4))
     U_train = torch.zeros((0, 3))
     print("Starting X_train")
@@ -145,7 +148,7 @@ def charge_data(hyper_param, param_adim):
             masque = (
                 ((x_full[nb] ** 2 + y_full[nb] ** 2) < ((0.025 / param_adim["L"]) ** 2))
                 & (t_norm_full[nb] == time_)
-                & (ya0_norm_full[nb] == ya0_)
+                # & (ya0_norm_full[nb] == ya0_)
             )
             indices = torch.randperm(len(x_norm_full[nb][masque]))[
                 : hyper_param["nb_points_close_cylinder"]
@@ -171,10 +174,11 @@ def charge_data(hyper_param, param_adim):
             X_train = torch.cat((X_train, new_x))
             U_train = torch.cat((U_train, new_y))
 
+
             # Les points avec 'latin hypercube sampling'
             time_start_lhs = time.time()
 
-            masque = (t_norm_full[nb] == time_) & (ya0_norm_full[nb] == ya0_)
+            masque = (t_norm_full[nb] == time_) 
             if x_norm_full[nb][masque].size(0) > 0:
                 indices = torch.randperm(x_norm_full[nb][masque].size(0))[
                     : hyper_param["nb_points"]
@@ -198,7 +202,6 @@ def charge_data(hyper_param, param_adim):
                 )
                 X_train = torch.cat((X_train, new_x))
                 U_train = torch.cat((U_train, new_y))
-                print(f"lhs:{(time.time()-time_start_lhs):.3e}")
     indices = torch.randperm(X_train.size(0))
     X_train = X_train[indices]
     U_train = U_train[indices]

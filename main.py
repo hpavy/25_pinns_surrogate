@@ -5,7 +5,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"Le code se lance sur {device}")
 
 
-folder_result_name = "first_try"  # name of the result folder
+folder_result_name = "first_try3"  # name of the result folder
 
 
 # On utilise hyper_param_init uniquement si c'est un nouveau modèle
@@ -15,18 +15,17 @@ hyper_param_init = {
     "ya0": [
         0.0025,
         0.0125,
-        # 0.00375,
-        # 0.00625,
-        # 0.00875,
+        0.00375,
+        0.00625,
+        0.00875,
     ],  # la position initiale du ressort
     "m": 1.57,  # la masse du ressort
     "file": [
-        # "data_john_3_case_2.csv",
-        # "data_john_5_case_2.csv",
-        #'data_john_5_case_2_test.csv',
-        #'data_john_7_case_2_test.csv',
-        "data_john_9_case_2_test.csv",
-        "data_john_2024_test.csv",
+        "data_john_2_case_2.csv",
+        "data_john_4_case_2.csv",
+        'data_john_5_case_2.csv',
+        'data_john_7_case_2.csv',
+        "data_john_9_case_2.csv",
     ],
     "nb_epoch": 1000,  # epoch number
     "save_rate": 20,  # rate to save
@@ -40,11 +39,11 @@ hyper_param_init = {
     "Re": 100,
     "lr_init": 0.001,
     "gamma_scheduler": 0.999,  # pour la lr
-    "nb_layers": 2,
-    "nb_neurons": 32,
+    "nb_layers": 15,
+    "nb_neurons": 64,
     "n_pde_test": 5000,
     "n_data_test": 5000,
-    "nb_points_axes": 12,  # le nombre de points pris par axe par pas de temps
+    "nb_points": 12*12,  # le nombre de points pris par axe par pas de temps
     "x_min": -0.1,
     "x_max": 0.1,
     "y_min": -0.06,

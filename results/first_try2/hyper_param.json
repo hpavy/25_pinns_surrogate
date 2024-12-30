@@ -9,11 +9,11 @@
     ],
     "m": 1.57,
     "file": [
-        "data_john_2_case_2.csv",
-        "data_john_4_case_2.csv",
-        "data_john_5_case_2.csv",
-        "data_john_7_case_2.csv",
-        "data_john_9_case_2.csv"
+        "data_john_2_case_2_test.csv",
+        "data_john_4_case_2_test.csv",
+        "data_john_5_case_2_test.csv",
+        "data_john_7_case_2_test.csv",
+        "data_john_9_case_2_test.csv"
     ],
     "nb_epoch": 1000,
     "save_rate": 20,

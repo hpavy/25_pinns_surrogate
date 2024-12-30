@@ -88,7 +88,6 @@ def train(
     len_X_train_one = (
         torch.tensor(X_train.size(0), device=device, dtype=torch.int64) // nb_simu
     )
-
     for epoch in range(len(train_loss["total"]), nb_it_tot):
         time_start_batch = time.time()
         total_batch = torch.tensor([0.0], device=device)
