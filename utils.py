@@ -6,6 +6,8 @@ import torch.optim as optim
 from model import PINNs
 import torch
 import time
+from geometry import RectangleWithoutCylinder
+import numpy as np
 
 
 def write_csv(data, path, file_name):
@@ -244,7 +246,68 @@ def charge_data(hyper_param, param_adim):
                 (x_, y_, torch.ones_like(x_) * time_, torch.ones_like(x_) * ya0_), dim=1
             )
             X_border_test = torch.cat((X_border_test, new_x))
-    return X_train, U_train, X_full, U_full, X_border, X_border_test, mean_std
+
+    # On charge le pde 
+    # le domaine de résolution
+    rectangle = RectangleWithoutCylinder(
+        x_max=X_full[:, 0].max(),
+        y_max=X_full[:, 1].max(),
+        t_min=X_full[:, 2].min(),
+        t_max=X_full[:, 2].max(),
+        x_min=X_full[:, 0].min(),
+        y_min=X_full[:, 1].min(),
+        x_cyl=0.0,
+        y_cyl=0.0,
+        r_cyl=0.025 / 2,
+        mean_std=mean_std,
+        param_adim=param_adim,
+    )
+
+    X_pde = torch.empty((hyper_param["nb_points_pde"] * nb_simu, 4))
+    for k in range(nb_simu):
+        X_pde_without_param = torch.concat(
+            (
+                rectangle.generate_lhs(hyper_param["nb_points_pde"]),
+                hyper_param["ya0"][k]
+                * torch.ones(hyper_param["nb_points_pde"]).reshape(-1, 1),
+            ),
+            dim=1,
+        )
+        X_pde[
+            k
+            * hyper_param["nb_points_pde"] : (k + 1)
+            * hyper_param["nb_points_pde"]
+        ] = X_pde_without_param
+    indices = torch.randperm(X_pde.size(0))
+    X_pde = X_pde[indices, :].detach()
+    print("X_pde OK")
+
+    # Data test loading
+    X_test_pde = torch.empty((hyper_param["n_pde_test"] * nb_simu, 4))
+    for k in range(nb_simu):
+        X_test_pde_without_param = torch.concat(
+            (
+                rectangle.generate_lhs(hyper_param["n_pde_test"]),
+                hyper_param["ya0"][k]
+                * torch.ones(hyper_param["n_pde_test"]).reshape(-1, 1),
+            ),
+            dim=1,
+        )
+
+        X_test_pde[
+            k
+            * hyper_param["n_pde_test"] : (k + 1)
+            * hyper_param["n_pde_test"]
+        ] = X_test_pde_without_param
+    indices = torch.randperm(X_test_pde.size(0))
+    X_test_pde = X_test_pde[indices, :].requires_grad_(True)
+
+    points_coloc_test = np.random.choice(
+        len(X_full), hyper_param["n_data_test"], replace=False
+    )
+    X_test_data = X_full[points_coloc_test]
+    U_test_data = U_full[points_coloc_test]
+    return X_train, U_train, X_full, U_full, X_border, X_border_test, mean_std, X_pde, X_test_pde, X_test_data, U_test_data
 
 
 def init_model(f, hyper_param, device, folder_result):
