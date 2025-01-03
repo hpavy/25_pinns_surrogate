@@ -219,7 +219,7 @@ def charge_data(hyper_param, param_adim):
         (((0.025 / 2) * torch.sin(teta_int)) / param_adim["L"]) - mean_std["y_mean"]
     ) / mean_std["y_std"]
 
-    for nb, ya0_ in enumerate(hyper_param["ya0"]):
+    for nb, ya0_ in enumerate(X_train[:, 3].unique()):
         for time_ in torch.unique(t_norm_full[nb]):
             new_x = torch.stack(
                 (x_, y_, torch.ones_like(x_) * time_, torch.ones_like(x_) * ya0_), dim=1
@@ -240,7 +240,7 @@ def charge_data(hyper_param, param_adim):
         - mean_std["y_mean"]
     ) / mean_std["y_std"]
 
-    for nb, ya0_ in enumerate(hyper_param["ya0"]):
+    for nb, ya0_ in enumerate(X_train[:, 3].unique()):
         for time_ in torch.unique(t_norm_full[nb]):
             new_x = torch.stack(
                 (x_, y_, torch.ones_like(x_) * time_, torch.ones_like(x_) * ya0_), dim=1
@@ -264,11 +264,11 @@ def charge_data(hyper_param, param_adim):
     )
 
     X_pde = torch.empty((hyper_param["nb_points_pde"] * nb_simu, 4))
-    for k in range(nb_simu):
+    for k, ya0_ in enumerate(X_train[:, 3].unique()):
         X_pde_without_param = torch.concat(
             (
                 rectangle.generate_lhs(hyper_param["nb_points_pde"]),
-                hyper_param["ya0"][k]
+                ya0_
                 * torch.ones(hyper_param["nb_points_pde"]).reshape(-1, 1),
             ),
             dim=1,
@@ -284,11 +284,11 @@ def charge_data(hyper_param, param_adim):
 
     # Data test loading
     X_test_pde = torch.empty((hyper_param["n_pde_test"] * nb_simu, 4))
-    for k in range(nb_simu):
+    for k, ya0_ in enumerate(X_train[:, 3].unique()):
         X_test_pde_without_param = torch.concat(
             (
                 rectangle.generate_lhs(hyper_param["n_pde_test"]),
-                hyper_param["ya0"][k]
+                ya0_
                 * torch.ones(hyper_param["n_pde_test"]).reshape(-1, 1),
             ),
             dim=1,
