@@ -5,7 +5,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"Le code se lance sur {device}")
 
 
-folder_result_name = "9_with_good_value"  # name of the result folder
+folder_result_name = "11_smaller_time"  # name of the result folder
 
 
 # On utilise hyper_param_init uniquement si c'est un nouveau modèle
@@ -49,7 +49,7 @@ hyper_param_init = {
     "y_min": -0.06,
     "y_max": 0.06,
     "t_min": 6.5,
-    "t_max": 8,
+    "t_max": 7.,
     "nb_points_close_cylinder": 50,  # le nombre de points proches du cylindre
     "nb_points_border": 25,  # le nombrede points sur la condition init
 }
