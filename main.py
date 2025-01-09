@@ -51,6 +51,7 @@ hyper_param_init = {
     "t_min": 6.5,
     # "t_max": 6.5 + 6.26*((1.57/230.67)**0.5),
     "nb_points_close_cylinder": 50,  # le nombre de points proches du cylindre
+    "rayon_close_cylinder": 0.015,
     "nb_points_border": 25,  # le nombrede points sur la condition init
 }
 

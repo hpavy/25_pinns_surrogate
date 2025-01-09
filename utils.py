@@ -146,9 +146,9 @@ def charge_data(hyper_param, param_adim):
         print(f"Simu n°{nb}/{len(hyper_param['ya0'])}")
         print(f"Time:{(time.time()-time_start_charge):.3f}")
         for time_ in torch.unique(t_norm_full[nb]):
-            # les points autour du cylindre dans un rayon de 0.025
+            # les points autour du cylindre dans un rayon de hyper_param['rayon_proche']
             masque = (
-                ((x_full[nb] ** 2 + y_full[nb] ** 2) < ((0.025 / param_adim["L"]) ** 2))
+                ((x_full[nb] ** 2 + y_full[nb] ** 2) < ((hyper_param['rayon_close_cylinder'] / param_adim["L"]) ** 2))
                 & (t_norm_full[nb] == time_)
                 # & (ya0_norm_full[nb] == ya0_)
             )
@@ -256,9 +256,9 @@ def charge_data(hyper_param, param_adim):
         t_max=X_full[:, 2].max(),
         x_min=X_full[:, 0].min(),
         y_min=X_full[:, 1].min(),
-        x_cyl=0.0,
-        y_cyl=0.0,
-        r_cyl=0.025 / 2,
+        x_cyl=0,
+        y_cyl=0,
+        r_cyl=0.025/2,
         mean_std=mean_std,
         param_adim=param_adim,
     )
