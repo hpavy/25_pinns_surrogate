@@ -164,7 +164,7 @@ def plot_loss_decompose(file_save, file, title_graph):
 
 def plot_points(X_train, X_border, mean_std, param_adim, file_save):
     plt.clf()
-    masque = X_train[:, 2] == np.unique(X_train[:, 2])[7]
+    masque = X_train[:, 2] == np.unique(X_train[:, 2])[0]
     x = (X_train[:, 0][masque] * mean_std["x_std"] + mean_std["x_mean"]) * param_adim[
         "L"
     ]

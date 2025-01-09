@@ -91,11 +91,8 @@ def pde(
         + (p_std / y_std) * p_y
         - (1 / Re) * ((v_std / (x_std**2)) * v_xx + (v_std / (y_std**2)) * v_yy)
         - (input[:, 3] * ya0_std + ya0_mean)
-        * L_adim
         * w_0**2
-        * L_adim
-        * torch.cos((w_0 * t_std * input[:, 2]) / (t_mean))
-        / V_adim**2
+        * torch.cos(w_0 * (t_std * input[:, 2] + t_mean))
     )
     equ_3 = (u_std / x_std) * u_x + (v_std / y_std) * v_y
     return equ_1, equ_2, equ_3

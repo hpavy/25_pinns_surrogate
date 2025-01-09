@@ -49,6 +49,8 @@ class RunSimulation:
         X_train.requires_grad_()
         U_train.requires_grad_()
         X_border.requires_grad_()
+        w_0_dim = torch.pi * (self.hyper_param['H'] / self.hyper_param['m'])**0.5
+        w_0 = w_0_dim * self.param_adim['L'] / (self.param_adim['V'])
 
         # Initialiser le modèle
 
@@ -94,7 +96,7 @@ class RunSimulation:
                 X_border=X_border,
                 X_border_test=X_border_test,
                 mean_std=mean_std,
-                w_0=(self.hyper_param["H"] / self.hyper_param["m"]) ** 0.5,
+                w_0=w_0,
                 param_adim=self.param_adim,
                 nb_simu=len(self.hyper_param["file"])
             )
