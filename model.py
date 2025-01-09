@@ -133,5 +133,7 @@ class PINNs(nn.Module):
 
 
 if __name__ == "__main__":
-    hyper_param = {"nb_layers": 0, "nb_neurons": 32}
+    hyper_param = {"nb_layers": 12, "nb_neurons": 64}
     piche = PINNs(hyper_param)
+    nombre_parametres = sum(p.numel() for p in piche.parameters() if p.requires_grad)
+    print(nombre_parametres)
