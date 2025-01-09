@@ -5,7 +5,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(f"Le code se lance sur {device}")
 
 
-folder_result_name = "12_with_good_pde"  # name of the result folder
+folder_result_name = "15_new_pde"  # name of the result folder
 
 
 # On utilise hyper_param_init uniquement si c'est un nouveau modèle
